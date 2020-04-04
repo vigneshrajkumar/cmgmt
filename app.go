@@ -16,10 +16,10 @@ var store *datastore.Store
 
 func setEnv() {
 	os.Setenv("HOST", "127.0.0.1")
-	os.Setenv("PORT", "5432")
+	os.Setenv("PORT", "6001")
 	os.Setenv("DATABASE", "membership")
 	os.Setenv("USER", "postgres")
-	os.Setenv("PASSWORD", "emc")
+	os.Setenv("PASSWORD", "Stonebraker")
 }
 
 func clearEnv() {

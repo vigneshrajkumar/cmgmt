@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/jackc/pgx"
+	"github.com/jackc/pgx/v4"
 )
 
 // Store is the interface which lets you interact with you rdbms
