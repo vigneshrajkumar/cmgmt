@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/jackc/pgx/v4"
 )
@@ -35,7 +36,8 @@ func (d *Store) Initialize() error {
 		"CREATE TYPE cm.family_role AS ENUM ('spouse', 'children', 'sibling', 'parent')",
 		"CREATE TYPE cm.txn_type AS ENUM ('tithe', 'donation')",
 		"CREATE TABLE IF NOT EXISTS cm.user (_id BIGSERIAL, username VARCHAR, password VARCHAR, session_token VARCHAR)",
-		"CREATE TABLE IF NOT EXISTS cm.member (_id BIGSERIAL, first_name VARCHAR, middle_name VARCHAR, last_name VARCHAR, phone VARCHAR, home VARCHAR, email VARCHAR, address VARCHAR, pincode VARCHAR, date_of_birth date, date_of_baptism date, date_of_confirmation date, blood_group VARCHAR, profession SMALLINT, remarks VARCHAR, photo BYTEA, status cm.membership_status, family_id bigint)",
+		"CREATE TABLE IF NOT EXISTS cm.member (_id BIGSERIAL, first_name VARCHAR, last_name VARCHAR,  date_of_birth date, is_male BOOLEAN)",
+		// "CREATE TABLE IF NOT EXISTS cm.member (_id BIGSERIAL, first_name VARCHAR, middle_name VARCHAR, last_name VARCHAR, phone VARCHAR, home VARCHAR, email VARCHAR, address VARCHAR, pincode VARCHAR, date_of_birth date, date_of_baptism date, date_of_confirmation date, blood_group VARCHAR, profession SMALLINT, remarks VARCHAR, photo BYTEA, status cm.membership_status, family_id bigint)",
 		"CREATE TABLE IF NOT EXISTS cm.family (_id BIGSERIAL, date_of_anniversary date, role cm.family_role)",
 		"CREATE TABLE IF NOT EXISTS cm.transactions (_id BIGSERIAL, amount numeric, date date, type cm.txn_type, remarks VARCHAR)",
 	}
@@ -83,6 +85,39 @@ func (d *Store) AddUser(username, password string) error {
 		return err
 	}
 	return nil
+}
+
+// AddMember adds access to new user
+func (d *Store) AddMember(m *Member) error {
+	isMale := "False"
+	if m.IsMale {
+		isMale = "True"
+	}
+	query := fmt.Sprintf("INSERT INTO cm.member (first_name, last_name,  date_of_birth, is_male) VALUES ('%s', '%s', '%s', '%s')", m.FirstName, m.LastName, m.Birthday.Format("2006-01-02 15:04:05"), isMale)
+	fmt.Println(query)
+	_, err := d.cxn.Exec(context.TODO(), query)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// GetMembers retreives all members from DB
+func (d *Store) GetMembers() (mems []*Member, err error) {
+	rows, err := d.cxn.Query(context.TODO(), "SELECT _id, first_name, last_name,  date_of_birth, is_male FROM cm.member")
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		vals, err := rows.Values()
+		if err != nil {
+			return nil, err
+		}
+		mems = append(mems, NewMember(vals[0].(int64), vals[1].(string), vals[2].(string), vals[3].(time.Time), vals[4].(bool)))
+	}
+
+	return
 }
 
 // ValidateUser check whether a given user exists

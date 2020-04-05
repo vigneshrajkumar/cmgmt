@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
+	"github.com/gorilla/mux"
 )
 
 var store *datastore.Store
@@ -68,20 +69,61 @@ func main() {
 		return
 	}
 
-	http.HandleFunc("/login", handleLogin)
-	http.HandleFunc("/logout", handleLogout)
+	r := mux.NewRouter()
+	r.HandleFunc("/login", handleLogin)
+	r.HandleFunc("/logout", handleLogout)
+	r.HandleFunc("/members", handleMembers)
+	http.Handle("/", r)
 
-	http.HandleFunc("/dashboard/", handleDashboard)
+	// http.HandleFunc("/login", handleLogin)
+	// http.HandleFunc("/logout", handleLogout)
+	// http.HandleFunc("/members", handleMembers)
+	// http.HandleFunc("/members/:id", handleMembersByID)
+	// http.HandleFunc("/members/add", handleGETAddMembers)
 
 	http.Handle("/", http.FileServer(http.Dir("./public")))
 	http.ListenAndServe(":3000", nil)
 }
 
-func handleDashboard(w http.ResponseWriter, r *http.Request) {
+func handleMembers(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
-		fmt.Println("GET /dashboard")
-		handleGETDashboard(w, r)
+		fmt.Println("GET /members")
+		handleGETMembers(w, r)
+		return
+
+	case "POST":
+		fmt.Println("POST /members")
+		handlePOSTMembers(w, r)
+		return
+
+	default:
+		fmt.Println("Route not handled ", r.Method)
+	}
+}
+
+func handleMembersByID(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "GET":
+		fmt.Println("GET /members by id")
+		handleGETMembersByID(w, r)
+		return
+
+	// case "POST":
+	// 	fmt.Println("POST /members")
+	// 	handlePOSTMembers(w, r)
+	// 	return
+
+	default:
+		fmt.Println("Route not handled ", r.Method)
+	}
+}
+
+func handleAdd(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "GET":
+		fmt.Println("GET /members/add")
+		handleGETAddMembers(w, r)
 		return
 
 	default:
@@ -104,7 +146,7 @@ func validateSession(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func handleGETDashboard(w http.ResponseWriter, r *http.Request) {
+func handleGETMembers(w http.ResponseWriter, r *http.Request) {
 
 	validateSession(w, r)
 
@@ -117,7 +159,91 @@ func handleGETDashboard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fmt.Println("logged in as ", username)
-	tmpl := template.Must(template.ParseFiles("./public/dashboard.html"))
+
+	mems, err := store.GetMembers()
+	if err != nil {
+		fmt.Println(err)
+
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	fmt.Println(mems)
+
+	tmpl := template.Must(template.ParseFiles("./public/members.html"))
+	tmpl.Execute(w, &datastore.MembersData{Username: username, Members: mems})
+	return
+}
+
+func handleGETMembersByID(w http.ResponseWriter, r *http.Request) {
+
+	validateSession(w, r)
+
+	cookie, _ := r.Cookie("session_token")
+	username, err := store.GetUser(cookie.Value)
+	if err != nil {
+		fmt.Println(err)
+
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	fmt.Println("logged in as ", username)
+
+	fmt.Println(r.URL.Path)
+
+	tmpl := template.Must(template.ParseFiles("./public/members.html"))
+	tmpl.Execute(w, &datastore.MembersData{Username: username})
+	return
+}
+
+func handlePOSTMembers(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		fmt.Fprintf(w, "ParseForm() err: %v", err)
+		return
+	}
+
+	firstName := r.FormValue("firstName")
+	lastName := r.FormValue("lastName")
+	birthday := r.FormValue("birthday")
+	gender := r.FormValue("gender")
+
+	isM := false
+	if gender == "male" {
+		isM = true
+	}
+	parsedBd, err := time.Parse("2006-01-02", birthday)
+	if err != nil {
+		fmt.Println(err)
+
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	m := datastore.NewMemberWithoutID(firstName, lastName, parsedBd, isM)
+	err = store.AddMember(m)
+	if err != nil {
+		fmt.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, "/members/new", http.StatusSeeOther)
+	return
+}
+
+func handleGETAddMembers(w http.ResponseWriter, r *http.Request) {
+
+	validateSession(w, r)
+
+	cookie, _ := r.Cookie("session_token")
+	username, err := store.GetUser(cookie.Value)
+	if err != nil {
+		fmt.Println(err)
+
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	fmt.Println("logged in as ", username)
+	tmpl := template.Must(template.ParseFiles("./public/add_members.html"))
 	tmpl.Execute(w, nil)
 	return
 }
@@ -137,11 +263,13 @@ func handlePOSTLogin(w http.ResponseWriter, r *http.Request) {
 	username := r.FormValue("username")
 	password := r.FormValue("password")
 
+	fmt.Println("1")
 	valid, err := store.ValidateUser(username, password)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+	fmt.Println(valid)
 	if !valid {
 		tmpl := template.Must(template.ParseFiles("./public/landing.html"))
 		tmpl.Execute(w, datastore.ErrorData{ErrorMessage: "Invalid login credentials"})
@@ -154,6 +282,8 @@ func handlePOSTLogin(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 
+	fmt.Println(sessionToken)
+
 	if err := store.UpdateSessionToken(username, sessionToken.String()); err != nil {
 		fmt.Println("error while updating session token.", err)
 	}
@@ -164,8 +294,8 @@ func handlePOSTLogin(w http.ResponseWriter, r *http.Request) {
 		Expires: time.Now().Add(30 * time.Minute),
 	})
 
-	fmt.Println("auth success... redirecting to dashboard...")
-	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
+	fmt.Println("auth success... redirecting to members...")
+	http.Redirect(w, r, "/members", http.StatusSeeOther)
 	return
 }
 
