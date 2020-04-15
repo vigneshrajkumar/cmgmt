@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="libs/DataTables-1.10.20/css/jquery.dataTables.min.css">
+  <title>Add Member | Church Management Suite</title>
+</head>
+
+<body>
+
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark static-top">
+    <div class="container">
+      <a class="navbar-brand" href="#">Church Managment Suite</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive"
+        aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarResponsive">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item ">
+            <a class="nav-link" href="index.html">Dashboard</a>
+          </li>
+          <li class="nav-item active">
+            <a class="nav-link" href="members.html">Members</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="transactions.html">Transactions</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="settings.html">Settings</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+
+  <!-- Page Content -->
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12">
+        <h1 class="mt-5"> Regiter <small>Members</small></h1>
+        <p class="lead">Complete with pre-defined file paths and responsive navigation!</p>
+        <p><a href="members.html">back to members</a></p>
+        <div class="row">
+          <div class="col-sm-6">
+
+            <form>
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <label for="">First Name</label>
+                  <input type="text" class="form-control" id="firstName" placeholder="Harvey ">
+                </div>
+                <div class="form-group col-md-6">
+                  <label for="">Last Name</label>
+                  <input type="text" class="form-control" id="lastName" placeholder="Specter">
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <label for="">Phone</label>
+                  <input type="text" class="form-control" id="phone" placeholder="978999855X ">
+                </div>
+                <div class="form-group col-md-6">
+                  <label for="">Home</label>
+                  <input type="text" class="form-control" id="home" placeholder="2642624X">
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <label for="">Birthday</label>
+                  <input type="date" class="form-control" id="birthday" placeholder="">
+                </div>
+                <div class="form-group col-md-6">
+                  <label for="">Gender</label>
+                  <select id="gender" class="form-control">
+                    <option selected>Male</option>
+                    <option>Female</option>
+                  </select>
+                </div>
+              </div>
+
+
+              <div class="form-group">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="init-family">
+                  <label class="form-check-label" for="gridCheck">
+                    Initialize member with a new family
+                  </label>
+                </div>
+              </div>
+
+
+              <div class="form-group" id="select-family-grp">
+                <div class="form-row">
+                  <label for="">Select family to associate</label>
+                  <select id="select-family" class="form-control">
+                    <option>...</option>
+                  </select>
+                </div>
+              </div>
+
+
+              <div class="form-group">
+                <label for="inputAddress">Address</label>
+                <input type="text" class="form-control" id="inputAddress" placeholder="4th Main St">
+              </div>
+
+
+              <button type="submit" class="btn btn-primary" id="add-member">Add</button>
+            </form>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <script src="js/jquery-3.5.0.js"></script>
+  <script src="js/add-member.js"></script>
+
+
+</body>
+
+</html>

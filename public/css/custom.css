@@ -1,0 +1,44 @@
+nav{
+    background-color: #9669A9;
+    color: cornsilk;
+}
+
+nav > ul{
+    list-style-type: none;
+}
+nav > ul> li  {
+  float: left;
+  }
+
+nav > ul> li > a {
+    display: block;
+    color: white;
+    text-decoration: none;
+  }
+
+.header{
+    background-color: rgb(205, 249, 255);
+}
+
+.content{
+    background-color: rgb(205, 255, 240);
+}
+
+#groupSelection > ul {
+    list-style: none;
+}
+
+
+.personal-details {
+    border: 2px dashed black;
+    padding: 10px;
+ }
+
+ 
+.family-details {
+    margin-top: 10px;
+   border: 2px dashed black;
+   padding: 10px;
+}
+
+
