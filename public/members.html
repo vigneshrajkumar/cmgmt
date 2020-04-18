@@ -50,7 +50,8 @@
 
         <div class="row">
           <div class="col-sm-12">
-            <button id="checkAll" class="btn btn-success btn-sm" onclick="location.href='add-members.html';" >Add Member </button>
+            <button id="checkAll" class="btn btn-success btn-sm" onclick="location.href='add-members.html';">Add Member
+            </button>
 
             <button id="checkAll" class="btn btn-primary btn-sm"> Select All </button>
             <button id="checkNone" class="btn btn-primary btn-sm"> Select None </button>
@@ -59,13 +60,48 @@
           </div>
         </div>
         <br>
-        <div class="row">
-          <div class="col-sm-12" id="adv-search-bar" style="visibility: hidden;" >
-            <span class="badge badge-info">age > 35 </span>
-            <button id="add-filter" class="btn btn-primary btn-sm"> Add Filter</button>
-            <button id="adv-search" class="btn btn-primary btn-sm"> Search</button>
+        <!-- <div class="row" id="adv-search-bar" style="visibility: hidden;"> -->
+        <div class="row" id="adv-search-bar">
+
+          <div class="col-sm-12">
+
+            <div id="filters">
+
+              <div class="form-row">
+                <div class="col-md-4">
+                  <select id="add-filter-cirteria" class="form-control  form-control-sm">
+                    <option selected>Select filter criteria</option>
+                    <option value="by-first-name">By First Name</option>
+                    <option value="by-last-name">By Last Name</option>
+                    <option value="by-phone">By Phone</option>
+                    <option value="by-home-phone">By Home Phone</option>
+                    <option value="by-email-address">By Email Address</option>
+                    <option value="by-home-address">By Home Address</option>
+                    <option value="by-pincode">By Pincode</option>
+                    <option value="by-blood-group">By Blood Group</option>
+                    <option value="by-birthday">By Birthday</option>
+                    <option value="by-anniversary">By Aniversary</option>
+                    <option value="by-profession">By Profession</option>
+                    <option value="by-age">By Age</option>
+                    <option value="by-marital-status">By Marital Status</option>
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <!-- <input type="text" class="form-control" placeholder="Last name"> -->
+                  <button id="add-filter" class="btn btn-primary btn-sm"> Add Filter</button>
+                  <button id="run-adv-search" class="btn btn-success btn-sm"> Adv. Search</button>
+                </div>
+                <div class="col-md-4">
+                </div>
+              </div> <!-- end of add critiera row-->
+
+            </div>
+
+            <!-- <button id="add-filter" class="btn btn-primary btn-sm"> Add Filter</button> -->
           </div>
+
         </div>
+
         <br>
 
         <div class="row">
@@ -84,7 +120,7 @@
   <script src="js/bootstrap.bundle.min.js"></script>
   <script src="libs/DataTables-1.10.20/js/jquery.dataTables.min.js"></script>
   <script src="js/member.js"></script>
-  
+
 
 </body>
 

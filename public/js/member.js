@@ -42,7 +42,6 @@ function populateMembers() {
 
 }
 
-
 $('#adv-search').click(function () {
     console.log("boom")
     if ($('#adv-search-bar').css('visibility') == 'hidden') {
@@ -104,6 +103,127 @@ $("#deleteBtn").click(function () {
     } else {
         console.log("aborting ");
     }
+
+
+});
+// Filter handling
+
+class IDGen {
+    constructor() {
+        this.val = 0;
+    }
+    nextID() {
+        return ++this.val
+    }
+}
+
+gen = new IDGen();
+
+var filterCritera = [];
+
+$("#run-adv-search").click(function () {
+    var queryComponents = [];
+    for (var index = 0; index < filterCritera.length; index++) {
+        var fieldElementID = "#" + filterCritera[index]
+        queryComponents.push($(fieldElementID).children()[0].firstElementChild.value + "=" + $(fieldElementID).children()[1].firstElementChild.value)
+    }
+    let searchURL = "/search?" +queryComponents.join("&");
+    console.log(searchURL)
+    $.get(searchURL, function (data) {
+        console.log(data)
+    }).fail(function () {
+        console.log('GET '+searchURL+' failed');
+    });;
+
+
 });
 
 
+$("#add-filter").click(function () {
+    var filterCriteraID = gen.nextID()
+    console.log($("#add-filter-cirteria").val())
+    switch ($("#add-filter-cirteria").val()) {
+        case "by-first-name":
+            $("#filters").append(getFilterByFirstNameBlock(filterCriteraID));
+            filterCritera.push("fil" + filterCriteraID)
+            break;
+        case "by-last-name":
+            $("#filters").append(filterByLastName);
+            break;
+        case "by-phone":
+            break;
+        case "by-home-phone":
+            break;
+        case "by-email-address":
+            break;
+        case "by-home-address":
+            break;
+        case "by-pincode":
+            break;
+        case "by-blood-group":
+            break;
+        case "by-birthday":
+            break;
+        case "by-anniversary":
+            break;
+        case "by-profession":
+            break;
+        case "by-age":
+            break;
+        case "by-marital-status":
+            break;
+        default:
+            console.log("unhandled - add filter criteria block");
+            break;
+    }
+    console.log(filterCritera);
+});
+
+function rem(id) {
+    console.log("removing " + "fil" + id);
+    $("#fil" + id).remove();
+    filterCritera = filterCritera.filter(e => e !== "fil" + id);
+
+    console.log(filterCritera);
+}
+
+
+function getFilterByFirstNameBlock(id) {
+    return `
+    <div class="form-row fil" id="fil${id}">
+    <div class="col-md-3">
+      <select id="gender${id}" class="form-control form-control-sm">
+        <option selected value="first-name-is">First Name Is</option>
+        <option  value="first-name-contains">First Name Contains</option>
+        <option value="first-name-starts-with">First Name Starts With</option>
+        <option value="first-name-ends-with">First Name Ends With</option>
+      </select>
+    </div>
+    <div class="col-md-3">
+      <input type="text" class="form-control  form-control-sm" id="phone" placeholder="Alex">
+    </div>
+    <div class="col-md-3">
+      <button id="remove-filter" class="btn btn-danger btn-sm" onclick="rem(${id})"> Remove Condition</button>
+    </div>
+  </div>`
+
+}
+
+
+let filterByLastName = `
+  <div class="form-row fil" id="filter">
+  <div class="col-md-3">
+    <select id="gender" class="form-control form-control-sm">
+      <option selected value="last-name-is">Last Name Is</option>
+      <option  value="last-name-contains">Last Name Contains</option>
+      <option value="last-name-starts-with">Last Name Starts With</option>
+      <option value="last-name-ends-with">Last Name Ends With</option>
+    </select>
+  </div>
+  <div class="col-md-3">
+    <input type="text" class="form-control  form-control-sm" id="phone" placeholder="Alex ">
+  </div>
+  <div class="col-md-3">
+    <button id="remove-filter" class="btn btn-danger btn-sm"> Remove Condition</button>
+  </div>
+</div>`

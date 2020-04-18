@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/jackc/pgx/v4"
@@ -129,8 +130,18 @@ func (d *Store) DeleteMember(id int64) error {
 }
 
 // GetMembers retreives all members from DB
-func (d *Store) GetMembers() (mems []*Member, err error) {
-	rows, err := d.cxn.Query(context.TODO(), "SELECT _id, first_name, last_name,  date_of_birth, gender, family_id FROM cm.member")
+func (d *Store) GetMembers(fitlers ...*Filter) (mems []*Member, err error) {
+	query := "SELECT _id, first_name, last_name,  date_of_birth, gender, family_id FROM cm.member"
+
+	if len(fitlers) > 0 {
+		whereClause := make([]string, len(fitlers))
+		for ix, f := range fitlers {
+			whereClause[ix] = f.SQL()
+		}
+		query = strings.Join([]string{query, " WHERE ", strings.Join(whereClause, " AND ")}, "")
+	}
+	fmt.Println(query)
+	rows, err := d.cxn.Query(context.TODO(), query)
 	if err != nil {
 		return nil, err
 	}

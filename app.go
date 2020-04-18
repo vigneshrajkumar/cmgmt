@@ -69,6 +69,8 @@ func main() {
 
 	r := mux.NewRouter()
 
+	r.HandleFunc("/search", handleGETSearch)
+
 	r.HandleFunc("/util/families", handleGETFamilyList)
 	r.HandleFunc("/util/member/{mid}/family", handleGETMemberFamily)
 
