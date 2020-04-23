@@ -4,6 +4,7 @@ import (
 	"cmgmt/datastore"
 	"encoding/json"
 	"fmt"
+	"log"
 
 	"net/http"
 
@@ -47,11 +48,36 @@ func handleGETSearch(w http.ResponseWriter, r *http.Request) {
 	w.Write(js)
 }
 
+func handleGETProfessionsList(w http.ResponseWriter, r *http.Request) {
+
+	log.Println("get professions list called")
+
+	profs, err := store.GetProfessionsWithID()
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	log.Println(profs)
+
+	js, err := json.Marshal(profs)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(js)
+}
+
 func handleGETFamilyList(w http.ResponseWriter, r *http.Request) {
+
+	log.Println("handleGETFamilyList()")
 
 	fams, err := store.GetFamilyNamesWithID()
 	if err != nil {
-		fmt.Println(err)
+		log.Println("ERROR: ", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

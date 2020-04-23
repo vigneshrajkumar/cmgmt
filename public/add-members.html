@@ -8,7 +8,6 @@
   <meta name="description" content="">
   <meta name="author" content="">
   <link rel="stylesheet" href="css/bootstrap.min.css">
-  <link rel="stylesheet" href="libs/DataTables-1.10.20/css/jquery.dataTables.min.css">
   <title>Add Member | Church Management Suite</title>
 </head>
 
@@ -75,6 +74,11 @@
                 </div>
               </div>
 
+              <div class="form-group">
+                <label for="">Email</label>
+                <input type="email" class="form-control" id="email" placeholder="harvery.spector@gould.inc">
+              </div>
+
               <div class="form-row">
                 <div class="form-group col-md-6">
                   <label for="">Birthday</label>
@@ -110,13 +114,59 @@
               </div>
 
 
-              <div class="form-group">
-                <label for="inputAddress">Address</label>
-                <input type="text" class="form-control" id="inputAddress" placeholder="4th Main St">
+              <div class="form-row">
+                <div class="form-group col-md-9">
+                  <label for="">Address</label>
+                  <input type="text" class="form-control" id="address"
+                    placeholder="#40, 2nd Floor, James Street, Anna Nagar, Chennai 48">
+                </div>
+                <div class="form-group col-md-3">
+                  <label for="">Pincode</label>
+                  <input type="text" class="form-control" id="pincode" placeholder="60000X">
+                </div>
               </div>
 
 
-              <button type="submit" class="btn btn-primary" id="add-member">Add</button>
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <label for="">Blood Group</label>
+                  <select id="blood-group" class="form-control">
+                    <option>A+</option>
+                    <option>A-</option>
+                    <option>B+</option>
+                    <option>B-</option>
+                    <option>A+</option>
+                    <option>O+</option>
+                    <option>O-</option>
+                    <option>AB+</option>
+                    <option>AB-</option>
+                    <option selected>NA</option>
+                  </select>
+                </div>
+                <div class="form-group col-md-6">
+                  <label for="">Profession</label>
+                  <select id="profession" class="form-control">   
+                    <option>...</option>         
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-row">
+              <div class="form-group">
+                <label for="profile-picture">Profile Picture</label>
+                <input type="file" class="form-control-file" id="profile-picture">
+              </div>
+            </div>
+
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="remarks">Remarks</label>
+                  <textarea class="form-control" id="remarks" rows="3" cols="50"></textarea>
+                </div>
+              </div>
+
+              <button type="button" class="btn btn-primary" id="add-member">Add</button>
             </form>
 
           </div>
@@ -124,7 +174,6 @@
       </div>
     </div>
   </div>
-
 
   <script src="js/jquery-3.5.0.js"></script>
   <script src="js/add-member.js"></script>

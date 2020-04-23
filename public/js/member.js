@@ -1,54 +1,37 @@
 
-
 $(document).ready(function () {
-
-
-    var t = $('#members-table').DataTable({
-        data: [],
-        columns: [
-            { title: "#" },
-            { title: "Name" },
-            { title: "Birthday." },
-        ]
-    });
-
-
-    $.get("/members", function (data) {
-        if (data.length == 0) {
-            reutrn
-        }
-        for (i = 0; i < data.length; i++) {
-            console.log(data[i])
-            t.row.add(["<input type=\"checkbox\" id=\"-1\" name=\"-1\" value=\"-1\">",
-                "<a href=\"member-profile.html?id=" + data[i].ID + "\">" + data[i].firstname + " " + data[i].lastname + "</a>",
-                data[i].birthday]).draw(false);
-        }
-    }).fail(function () {
-        console.log('GET /members failed');
-    });;
+    // $('#members-table').DataTable();
+    populateMembers()
 });
 
-
-function createMembersTableRow(id, name, age) {
+function createMembersTableRow(data) {
     return `<tr class="r">
     <td> <input type="checkbox" id="-1" name="-1" value="-1"> </td>
-    <td>${id}</td>
-    <td><a href="member-profile.html?id=${id}">${name}</a></td>
-    <td>${age}</td>
+    <td><a href="member-profile.html?id=${data.ID}">${data.firstName} ${data.lastName}</a></td>
+    <td>${data.phone}</td>
+    <td>${data.email}</td>
   </tr>`
 }
 
 function populateMembers() {
-
+    $.get("/members", function (data) {
+        if (data == null) {
+            return
+        }
+        for (i = 0; i < data.length; i++) {
+            console.log(data[i])
+            $("#members-table-body").append(createMembersTableRow(data[i]))
+        }
+    }).fail(function () {
+        console.log('GET /members failed');
+    });;
 }
 
 $('#adv-search').click(function () {
     console.log("boom")
     if ($('#adv-search-bar').css('visibility') == 'hidden') {
-        console.log("hid")
         $('#adv-search-bar').css('visibility', 'visible');
     } else {
-        console.log("nope")
         $('#adv-search-bar').css('visibility', 'hidden');
     }
 });
@@ -127,15 +110,27 @@ $("#run-adv-search").click(function () {
         var fieldElementID = "#" + filterCritera[index]
         queryComponents.push($(fieldElementID).children()[0].firstElementChild.value + "=" + $(fieldElementID).children()[1].firstElementChild.value)
     }
-    let searchURL = "/search?" +queryComponents.join("&");
+    let searchURL = "/search?" + queryComponents.join("&");
     console.log(searchURL)
     $.get(searchURL, function (data) {
-        console.log(data)
+        console.log(data);
+        $("#members-table-body").empty();
+        for (i = 0; i < data.length; i++) {
+            console.log(data[i])
+            $("#members-table-body").append(createMembersTableRow(data[i]))
+        }
+
     }).fail(function () {
-        console.log('GET '+searchURL+' failed');
+        console.log('GET ' + searchURL + ' failed');
     });;
 
 
+});
+
+
+$("#clear-filter").click(function () {
+    $("#members-table-body").empty();
+    populateMembers();
 });
 
 

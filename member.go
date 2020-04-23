@@ -3,10 +3,9 @@ package main
 import (
 	"cmgmt/datastore"
 	"encoding/json"
-	"fmt"
+	"log"
 	"strconv"
 	"strings"
-	"time"
 
 	"net/http"
 )
@@ -14,43 +13,43 @@ import (
 func handleMemberByID(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
-		fmt.Println("GET /member/id")
+		log.Println("GET /member/id")
 		handleGETMemberByID(w, r)
 
 	case "DELETE":
-		fmt.Println("DELETE /member/id")
+		log.Println("DELETE /member/id")
 		handleDELETEMemberByID(w, r)
 
 	default:
-		fmt.Println("Route not handled ", r.Method)
+		log.Println("Route not handled ", r.Method)
 	}
 }
 
 func handleMembers(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
-		fmt.Println("GET /members")
+		log.Println("GET /members")
 		handleGETMembers(w, r)
 
 	case "POST":
-		fmt.Println("POST /members")
+		log.Println("POST /members")
 		handlePOSTMembers(w, r)
 
 	default:
-		fmt.Println("Route not handled ", r.Method)
+		log.Println("Route not handled ", r.Method)
 	}
 }
 
 func handleGETMembers(w http.ResponseWriter, r *http.Request) {
+	log.Println("handleGETMembers()")
 
 	mems, err := store.GetMembers()
 	if err != nil {
-		fmt.Println(err)
-
+		log.Println("getMembers() error ", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	fmt.Println(mems)
+	log.Println(mems)
 
 	js, err := json.Marshal(mems)
 	if err != nil {
@@ -63,30 +62,38 @@ func handleGETMembers(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleGETMemberByID(w http.ResponseWriter, r *http.Request) {
-
-	fmt.Println(r.URL.Path)
 	splitPath := strings.Split(r.URL.Path, "/")
-
-	id, err := strconv.Atoi(splitPath[len(splitPath)-1])
+	id, err := strconv.ParseFloat(splitPath[len(splitPath)-1], 64)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 	}
 
-	mems, err := store.GetMemberByID(int64(id))
+	mem, err := store.GetMemberByID(id)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	fmt.Println(mems)
+	log.Println(mem)
 
-	js, err := json.Marshal(mems)
+	prof, err := store.ResolveProfession(mem.ProfessionID)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	log.Println(mem)
+
+	payload := make(map[string]interface{})
+	payload["member"] = mem
+	payload["resolvedProfession"] = prof
+
+	js, err := json.Marshal(payload)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(js)
 
@@ -94,17 +101,17 @@ func handleGETMemberByID(w http.ResponseWriter, r *http.Request) {
 
 func handleDELETEMemberByID(w http.ResponseWriter, r *http.Request) {
 
-	fmt.Println(r.URL.Path)
+	log.Println(r.URL.Path)
 
 	splitPath := strings.Split(r.URL.Path, "/")
 
 	id, err := strconv.Atoi(splitPath[len(splitPath)-1])
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 	}
 
 	if err := store.DeleteMember(int64(id)); err != nil {
-		fmt.Println(err)
+		log.Println(err)
 	}
 
 	w.WriteHeader(http.StatusCreated)
@@ -118,48 +125,27 @@ func handleDELETEMemberByID(w http.ResponseWriter, r *http.Request) {
 	w.Write(js)
 }
 
-func createMemberWithoutIDFromRequest(r *http.Request) (*datastore.Member, error) {
-	if err := r.ParseForm(); err != nil {
-		return nil, err
-	}
-
-	firstName := r.FormValue("firstname")
-	lastName := r.FormValue("lastname")
-	birthday := r.FormValue("birthday")
-	gender := r.FormValue("gender")
-	fID := r.FormValue("fID")
-	if fID == "" {
-		fID = "-1"
-	}
-
-	parsedBd, err := time.Parse("2006-01-02", birthday)
-	if err != nil {
-		return nil, err
-	}
-
-	fidStr, err := strconv.Atoi(fID)
-	if err != nil {
-		return nil, err
-	}
-
-	return datastore.NewMember(store.NextID(), firstName, lastName, parsedBd, gender, int64(fidStr)), nil
-}
-
 func handlePOSTMembers(w http.ResponseWriter, r *http.Request) {
+	log.Println("handlePOSTMembers()")
 
-	m, err := createMemberWithoutIDFromRequest(r)
+	decoder := json.NewDecoder(r.Body)
+	var m datastore.Member
+	err := decoder.Decode(&m)
 	if err != nil {
-		fmt.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
+		log.Println(err)
 	}
-	m.ID = store.NextID()
+	// log.Println("FirstName : ", m.FirstName)
 
-	fmt.Println(m)
+	log.Println("FirstName : ", m.FirstName)
+	log.Println("LastName : ", m.LastName)
 
-	err = store.AddMember(m)
+	m.ID = float64(int(store.NextID()))
+
+	log.Println(m)
+
+	err = store.AddMember(&m)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

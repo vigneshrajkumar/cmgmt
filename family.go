@@ -44,12 +44,12 @@ func handleGETFamilyByID(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(r.URL.Path)
 	splitPath := strings.Split(r.URL.Path, "/")
 
-	id, err := strconv.Atoi(splitPath[len(splitPath)-1])
+	id, err := strconv.ParseFloat(splitPath[len(splitPath)-1], 64)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	mems, err := store.GetMemberByID(int64(id))
+	mems, err := store.GetMemberByID(id)
 	if err != nil {
 		fmt.Println(err)
 

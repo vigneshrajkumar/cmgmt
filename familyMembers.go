@@ -3,35 +3,43 @@ package main
 import (
 	"cmgmt/datastore"
 	"encoding/json"
-	"fmt"
+	"log"
 	"net/http"
 )
 
 func handleFamilyMembers(w http.ResponseWriter, r *http.Request) {
+	log.Println("handleFamilyMembers()")
+	log.Println("content type: ", r.Header.Get("Content-type"))
+
 	memberID := store.NextID()
 	familyID := store.NextID()
 
 	f := datastore.NewFamily(familyID, memberID)
 
-	m, err := createMemberWithoutIDFromRequest(r)
+	decoder := json.NewDecoder(r.Body)
+	var m datastore.Member
+	err := decoder.Decode(&m)
 	if err != nil {
-		fmt.Println(err)
+		log.Println("decoding eror", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	m.ID = memberID
-	m.FamilyID = familyID
+
+	m.ID = float64(int(memberID))
+	m.FamilyID = float64(int(familyID))
+
+	log.Println("Member: ", m)
 
 	// TODO: The below code should be in a transaction
 
-	if err := store.AddMember(m); err != nil {
-		fmt.Println(err)
+	if err := store.AddMember(&m); err != nil {
+		log.Println("Err adding member: ", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	if err := store.AddFamily(f); err != nil {
-		fmt.Println(err)
+		log.Println("Err adding family: ", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
